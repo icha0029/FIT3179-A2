@@ -135,7 +135,7 @@
         .text-box-barchart-bottom {
             position: absolute;
             right: 40px;
-            top: 220px;
+            top: 140px;
             width: 280px;
             background-color: transparent;
             padding: 20px;
@@ -216,94 +216,77 @@
         <div class="map-wrapper">
                 <!-- Left annotation box explaining what the map shows -->
                 <div class="text-box">
-                    <p><strong>What the graph shows dinggggggggga:</strong></p>
+                    <p><strong>What the graph shows:</strong></p>
                     <p>This map compares how much water each Australian state sources per 1,000 people through its urban water utilities. Darker shades represent higher per-capita sourcing, highlighting where utilities need to supply more water for each resident.</p>
                     <p>States on the east coast New South Wales, Victoria and Queensland sit in a narrow band around 65–70 ML per 1,000 people, while others show stronger variations.</p>
                 </div>
                 
-                <!-- Right annotation box explaining the pattern's meaning -->
                 <div class="text-box-right">
                     <p><strong>What The Pattern Means:</strong></p>
                     <p>The elevated values in Northern Territory (≈149 ML per 1,000 people) and Western Australia (≈94 ML per 1,000 people) show how geography, climate and long-distance networks drive higher water sourcing per person.</p>
                     <p>Both states have smaller, more dispersed populations, meaning utilities must move water farther and compensate for greater losses. In contrast, densely populated states like Victoria (≈64 ML), New South Wales (≈69 ML) and Queensland (≈68 ML) operate compact, efficient systems where large urban communities share infrastructure, resulting in much lower per-capita demand.</p>
                 </div>
                 
-                <!-- Container where the choropleth map visualization will be rendered -->
                 <div id="vis"></div>
             </div>
             
-            <!-- ========== SECTION 2: BAR CHART ========== -->
-            <!-- Shows top water utilities ranked by population served -->
+            <!-- Bar Chart -->
             <div class="chart">
                 <h2>Top Urban Water Utilities by Population Served</h2>
                 <p class="subtitle">Largest water utilities in Australia ranked by the number of people they serve.</p>
                 
-                <!-- Wrapper for bar chart with top and bottom text boxes -->
                 <div class="map-wrapper">
-                    <!-- Top text box explaining the bar chart -->
                     <div class="text-box-barchart-top">
                         <p><strong>What the graph shows:</strong></p>
                         <p>This bar chart ranks Australia's largest urban water utilities by the number of people they supply. Each bar represents one utility, with the bar length showing the population receiving water services and the colour indicating the state or territory.</p>
                         <p>Utilities like Sydney Water, Yarra Valley Water and Urban Utilities sit at the top, while smaller regional or city systems appear lower on the chart.</p>
                     </div>
                     
-                    <!-- Bottom text box explaining the pattern's significance -->
                     <div class="text-box-barchart-bottom">
                         <p><strong>What the pattern means:</strong></p>
                         <p>These utility sizes help explain the choropleth map. Large, dense utilities in NSW, Victoria and Queensland supply millions of people efficiently, which is why these states show lower per-capita water sourcing.</p>
                         <p>In contrast, WA and the NT rely on smaller, more dispersed utilities, so each resident requires more water to be sourced and moved, producing the higher per-capita values seen on the map.</p>
                     </div>
                     
-                    <!-- Container where the bar chart will be rendered -->
                     <div id="barchart"></div>
                 </div>
             </div>
             
-            <!-- ========== SECTION 3: COLUMN CHART ========== -->
-            <!-- Shows water supply trends over time with interactive year filter -->
+            <!-- Column Chart -->
             <div class="chart">
                 <h2>Water Supply Trends by State Over Time</h2>
                 <p class="subtitle">Total urban water supplied (ML) across Australian states and territories over the years.</p>
                 
-                <!-- Container where the column chart with year filter will be rendered -->
                 <div id="columnchart"></div>
             </div>
             
-            <!-- ========== SECTION 4: SCATTER PLOT ========== -->
-            <!-- Shows relationship between population and water received -->
+            <!-- Scatter Plot -->
             <div class="chart">
                 <h2>Population vs Water Received by State</h2>
                 <p class="subtitle">Exploring the relationship between population size and total water received across Australian states.</p>
                 
-                <!-- Wrapper for scatter plot with text annotations -->
                 <div class="map-wrapper">
-                    <!-- Top text box explaining the scatter plot -->
                     <div class="text-box-barchart-top">
                         <p><strong>What the plot shows:</strong></p>
                         <p>The scatter plot compares how many people each state's urban water systems serve with how much water they receive overall. Each point is a state: moving right means serving more people, and moving up means receiving a larger total volume of water.</p>
                     </div>
                     
-                    <!-- Bottom text box explaining the trend -->
                     <div class="text-box-barchart-bottom">
                         <p><strong>What the pattern means:</strong></p>
                         <p>Most states sit on a rough upward trend, where more people generally means more water supplied. States that sit higher relative to their population are effectively supplying more water per person, matching the darker per-capita sourcing seen on the choropleth map, while states closer to the line align with more efficient, lower per-capita use.</p>
                     </div>
                     
-                    <!-- Container where the scatter plot will be rendered -->
                     <div id="scatterplot"></div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- ========== JAVASCRIPT: LOAD ALL VISUALIZATIONS ========== -->
-    <!-- Uses Vega-Embed to load JSON specifications and render visualizations -->
     <script>
-        // VISUALIZATION 1: Load choropleth map from map.json
-        // Shows water sourced per 1,000 people by state with color coding
+        // Load choropleth map
         vegaEmbed('#vis', 'map.json', {
-            "actions": false,  // Hide export/view actions menu
-            "renderer": "svg"  // Use SVG for better transparency support
+            "actions": false,
+            "renderer": "svg"
         }).then(function(result) {
             console.log('Map loaded successfully:', result);
         }).catch(function(error) {
@@ -311,8 +294,7 @@
             alert('Error loading map. Check console for details.');
         });
         
-        // VISUALIZATION 2: Load horizontal bar chart from barchart.json
-        // Ranks top water utilities by population served
+        // Load bar chart
         vegaEmbed('#barchart', 'barchart.json', {
             "actions": false,
             "renderer": "svg"
@@ -323,8 +305,7 @@
             alert('Error loading bar chart. Check console for details.');
         });
         
-        // VISUALIZATION 3: Load column chart from column_chart.json
-        // Shows water supply trends over time with interactive year filter
+        // Load column chart
         vegaEmbed('#columnchart', 'column_chart.json', {
             "actions": false,
             "renderer": "svg"
@@ -335,8 +316,7 @@
             alert('Error loading column chart. Check console for details.');
         });
         
-        // VISUALIZATION 4: Load scatter plot from scatterplot.json
-        // Shows relationship between population and water received by state
+        // Load scatterplot
         vegaEmbed('#scatterplot', 'scatterplot.json', {
             "actions": false,
             "renderer": "svg"
