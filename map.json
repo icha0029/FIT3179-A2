@@ -57,7 +57,7 @@
         "color": {
           "field": "Water Used in ML per 1000 people",
           "type": "quantitative",
-          "title": "DINGACHOD sourced (ML) per 1,000 people",
+          "title": "Water sourced (ML) per 1,000 people",
           "scale": {
             "type": "sqrt",
             "scheme": "blues",
