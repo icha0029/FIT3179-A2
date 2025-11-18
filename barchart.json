@@ -1,0 +1,57 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Horizontal bar chart of Australia's top urban water utilities ranked by population served. Explains why certain states have lower per-capita sourcing - large utilities serve millions efficiently.",
+  
+  "width": 550,
+  "height": 320,
+  
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "black",
+      "gridColor": "black",
+      "tickColor": "black",
+      "labelColor": "black",
+      "titleColor": "black"
+    }
+  },
+  
+  "data": {
+    "url": "data/top_utilities_population.csv"
+  },
+  
+  "mark": {
+    "type": "bar",
+    "tooltip": true
+  },
+  
+  "encoding": {
+    "y": {
+      "field": "Utility",
+      "type": "ordinal",
+      "sort": "-x",
+      "title": "Urban water utility"
+    },
+    "x": {
+      "field": "PopulationServed",
+      "type": "quantitative",
+      "title": "Population receiving services"
+    },
+    "color": {
+      "field": "State",
+      "type": "nominal",
+      "title": "State / Territory",
+      "scale": {
+        "scheme": "tableau10"
+      }
+    },
+    "tooltip": [
+      { "field": "Utility", "type": "nominal", "title": "Utility" },
+      { "field": "State", "type": "nominal", "title": "State" },
+      { "field": "PopulationServed", "type": "quantitative", "title": "Population served" }
+    ]
+  }
+}

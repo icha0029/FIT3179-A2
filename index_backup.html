@@ -1,0 +1,450 @@
+<!DOCTYPE html>                                    <!-- HTML5 document declaration - tells browser this is HTML5 -->
+<html lang="en">                                   <!-- Root HTML element, lang="en" specifies English language -->
+<head>                                             <!-- Head section contains metadata and resources -->
+    <!-- Character encoding for proper text display -->
+    <meta charset="UTF-8">                         <!-- UTF-8 encoding supports all international characters -->
+    <!-- Responsive viewport settings for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Makes page responsive on mobile -->
+    <title>Data Visualization Dashboard</title>    <!-- Browser tab/window title -->
+    
+    <!-- Import Vega & Vega-Lite Libraries -->
+    <!-- Vega: Low-level visualization grammar -->
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>        <!-- Vega core library v5.25.0 from CDN -->
+    <!-- Vega-Lite: High-level visualization grammar (easier to use) -->
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.16.3"></script>   <!-- Vega-Lite v5.16.3 - simpler API -->
+    <!-- Vega-Embed: Tool to embed Vega/Vega-Lite visualizations in web pages -->
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.24.0"></script>  <!-- Vega-Embed v6.24.0 for embedding -->
+    
+    <style>                                        <!-- Internal CSS styles begin -->
+        /* ====================
+           BODY STYLES
+           ==================== */
+        body {                                     /* Styles for entire page body */
+            font-family: Arial, sans-serif;        /* Primary font: Arial, fallback to any sans-serif */
+            margin: 0;                             /* Remove default 8px browser margin */
+            padding: 20px;                         /* Add 20px space inside body on all sides */
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef5350 50%, #c62828 100%);  /* Diagonal gradient: light red to dark red */
+            min-height: 100vh;                     /* Minimum height = 100% of viewport height (full screen) */
+        }
+        
+        /* ====================
+           CONTAINER STYLES
+           ==================== */
+        .container {                               /* Main content wrapper - applies to div with class="container" */
+            max-width: 1400px;                     /* Constrains width to 1400px max for readability */
+            margin: 0 auto;                        /* 0 top/bottom, auto left/right = horizontal centering */
+            background-color: transparent;         /* No background (shows gradient through) */
+            padding: 30px;                         /* 30px space inside container on all sides */
+            border: none;                          /* No border around container */
+            box-shadow: none;                      /* No drop shadow effect */
+        }
+        
+        /* ====================
+           HEADING STYLES
+           ==================== */
+        h1 {                                       /* Styles for level 1 heading (main page title) */
+            color: #333;                           /* Dark gray text color (hex value) */
+            text-align: center;                    /* Horizontally center the text */
+            margin-bottom: 40px;                   /* 40px space below the heading */
+        }
+        
+        /* ====================
+           CHART CONTAINER STYLES
+           ==================== */
+        .chart {                                   /* Wrapper for each visualization section */
+            margin: 30px 0;                        /* 30px space above and below, 0 left/right */
+            padding: 20px;                         /* 20px space inside on all sides */
+            border: none;                          /* No border */
+            background-color: transparent;         /* Transparent (shows gradient) */
+        }
+        
+        /* Wrapper for map and text box */
+        .map-wrapper {                             /* Container for charts with floating text boxes */
+            position: relative;                    /* Establishes positioning context for absolute children */
+            width: 100%;                           /* Takes full width of parent */
+            background-color: transparent;         /* No background color */
+            padding: 20px;                         /* 20px padding on all sides */
+            border: none;                          /* No border */
+            box-sizing: border-box;                /* Padding included in width (not added) */
+            min-height: 450px;                     /* Ensures space for text boxes above/below chart */
+        }
+        
+        /* Center the visualization */
+        #vis {                                     /* ID selector for choropleth map container */
+            display: flex;                         /* Flexbox layout for easy centering */
+            justify-content: center;               /* Center children horizontally */
+            align-items: center;                   /* Center children vertically */
+        }
+        
+        /* ====================
+           VISUALIZATION BACKGROUND FIX
+           Force ALL Vega-Lite elements to have transparent backgrounds
+           ==================== */
+        #vis, #vis *, #vis canvas, #vis svg, #vis .mark-rect,
+        #barchart, #barchart *, #barchart canvas, #barchart svg, #barchart .mark-rect,
+        #columnchart, #columnchart *, #columnchart canvas, #columnchart svg, #columnchart .mark-rect,
+        #scatterplot, #scatterplot *, #scatterplot canvas, #scatterplot svg, #scatterplot .mark-rect {
+            background-color: transparent !important;    /* Force transparent background */
+            background: transparent !important;          /* Force transparent background (alternative property) */
+        }
+        
+        .vega-embed, .vega-embed *, .vega-embed canvas, .vega-embed svg,
+        details summary, details[open] {
+            background-color: transparent !important;    /* Force Vega embed elements to be transparent */
+            background: transparent !important;          /* Force transparent */
+        }
+        
+        /* ====================
+           TEXT BOX POSITIONING STYLES
+           ==================== */
+        /* 
+         * Left text box for choropleth map - "What the graph shows"
+         * Positioned on the left side of the map with transparent background
+         */
+        .text-box {                                /* Left-side floating text box for map */
+            position: absolute;                    /* Positioned relative to nearest positioned ancestor (.map-wrapper) */
+            left: 40px;                            /* 40px from left edge of map-wrapper */
+            top: 100px;                            /* 100px from top of map-wrapper */
+            width: 280px;                          /* Fixed width of 280 pixels */
+            background-color: transparent;         /* No background (see gradient through) */
+            padding: 20px;                         /* 20px space inside box on all sides */
+            border-radius: 8px;                    /* 8px rounded corners */
+            line-height: 1.6;                      /* 1.6x font size for line height (better readability) */
+            font-size: 13px;                       /* Text size 13 pixels */
+            color: #333;                           /* Dark gray text color */
+            box-shadow: none;                      /* No drop shadow */
+            z-index: 10;                           /* Stacking order: appears above map (higher = on top) */
+            text-align: center;                    /* Center-align all text inside */
+        }
+        
+        /* 
+         * Right text box for choropleth map - "What the pattern means"
+         * Positioned on the right side of the map with transparent background
+         */
+        .text-box-right {                          /* Right-side floating text box for map */
+            position: absolute;                    /* Positioned relative to .map-wrapper */
+            right: 40px;                           /* 40px from right edge of map-wrapper */
+            top: 100px;                            /* 100px from top (same as left box) */
+            width: 280px;                          /* Same width as left box (280px) */
+            background-color: transparent;         /* Transparent (shows gradient) */
+            padding: 20px;                         /* 20px padding on all sides */
+            border-radius: 8px;                    /* 8px rounded corners */
+            line-height: 1.6;                      /* 1.6x font size line spacing */
+            font-size: 13px;                       /* 13px font size */
+            color: #333;                           /* Dark gray text */
+            box-shadow: none;                      /* No shadow */
+            z-index: 10;                           /* Appears above map */
+            text-align: center;                    /* Center-aligned text */
+        }
+        
+        /* 
+         * Top text box for bar chart and scatterplot 
+         * Shows "What the graph/plot shows"
+         * Negative top value moves it above the chart area
+         */
+        .text-box-barchart-top {                   /* Top text box for bar chart and scatter plot */
+            position: absolute;                    /* Positioned relative to .map-wrapper parent */
+            right: 40px;                           /* 40px from right edge */
+            top: -50px;                            /* -50px = 50px ABOVE the wrapper's top edge */
+            width: 280px;                          /* 280px wide */
+            background-color: transparent;         /* Transparent background */
+            padding: 20px;                         /* 20px padding all sides */
+            border-radius: 8px;                    /* 8px rounded corners */
+            line-height: 1.6;                      /* 1.6x line height */
+            font-size: 13px;                       /* 13px text size */
+            color: #333;                           /* Dark gray text */
+            box-shadow: none;                      /* No shadow */
+            z-index: 10;                           /* Stacks above chart */
+            text-align: center;                    /* Center-aligned text */
+        }
+        
+        /* 
+         * Bottom text box for bar chart and scatterplot
+         * Shows "What the pattern means"
+         * Creates 190px gap from top box (140px - (-50px))
+         */
+        .text-box-barchart-bottom {                /* Bottom text box for bar chart and scatter plot */
+            position: absolute;                    /* Positioned relative to .map-wrapper */
+            right: 40px;                           /* 40px from right edge */
+            top: 140px;                            /* 140px from top (190px gap from top box at -50px) */
+            width: 280px;                          /* 280px wide (same as other boxes) */
+            background-color: transparent;         /* Transparent background */
+            padding: 20px;                         /* 20px padding on all sides */
+            border-radius: 8px;                    /* 8px rounded corners */
+            line-height: 1.6;                      /* 1.6x line height */
+            font-size: 13px;                       /* 13px font size */
+            color: #333;                           /* Dark gray text */
+            box-shadow: none;                      /* No shadow */
+            z-index: 10;                           /* Stacks above chart */
+            text-align: center;                    /* Center-aligned text */
+        }
+        
+        /* ====================
+           TEXT BOX CONTENT STYLES
+           ==================== */
+        /* 
+         * Paragraph styling inside text boxes 
+         * Applies to all text box variants
+         */
+        .text-box p, .text-box-right p, .text-box-barchart-top p, .text-box-barchart-bottom p {  /* Comma-separated selectors = OR */
+            margin-bottom: 12px;                   /* 12px space below each paragraph */
+            text-align: center;                    /* Center-align paragraph text */
+        }
+        
+        /* 
+         * Remove bottom margin from last paragraph in text boxes 
+         * Prevents extra space at bottom of box
+         */
+        .text-box p:last-child, .text-box-right p:last-child, .text-box-barchart-top p:last-child, .text-box-barchart-bottom p:last-child {  /* :last-child pseudo-class */
+            margin-bottom: 0;                      /* Remove margin from last <p> in each box */
+        }
+        
+        /* 
+         * Bold text styling inside text boxes 
+         * Ensures headings are centered
+         */
+        .text-box strong, .text-box-right strong, .text-box-barchart-top strong, .text-box-barchart-bottom strong {  /* <strong> tags in boxes */
+            text-align: center;                    /* Center-align bold text */
+        }
+        
+        /* ====================
+           CHART TITLE & SUBTITLE STYLES
+           ==================== */
+        /* Chart title styling */
+        h2 {                                       /* Level 2 headings (section titles) */
+            color: #000;                           /* Pure black text */
+            margin-top: 0;                         /* No space above (prevents double spacing) */
+            margin-bottom: 10px;                   /* 10px space below heading */
+            text-align: center;                    /* Center-align */
+            font-weight: bold;                     /* Bold weight (usually default for h2) */
+        }
+        
+        /* Chart subtitle styling */
+        .subtitle {                                /* Subtitle paragraphs under each chart */
+            color: #000;                           /* Black text */
+            font-size: 16px;                       /* 16px (larger than body text) */
+            line-height: 1.5;                      /* 1.5x font size for line spacing */
+            margin-top: 0;                         /* No margin above */
+            margin-bottom: 20px;                   /* 20px space before chart */
+            font-style: italic;                    /* Italic text for visual distinction */
+            text-align: center;                    /* Center-align */
+        }
+    </style>                                       <!-- End of CSS styles -->
+</head>                                            <!-- End of head section -->
+<body>                                             <!-- Body section begins - visible content -->
+    <!-- ====================
+         MAIN CONTENT CONTAINER
+         This div contains all visualizations and content on the page
+         ==================== -->
+    <div class="container">                        <!-- Main container div with max-width and centering -->
+        <!-- Main page title - appears at top of dashboard -->
+        <h1>Australian Water Usage Visualization</h1>  <!-- Level 1 heading - main dashboard title -->
+        
+        <!-- ====================
+             SECTION 1: CHOROPLETH MAP
+             Shows water sourced per 1,000 people by state with annotations
+             ==================== -->
+        <!-- Chart title -->
+        <h2>Where Water Is Pulled the Hardest Across Australia</h2>  <!-- Section title (h2) -->
+        <!-- Chart subtitle/description -->
+        <p class="subtitle">Which states source the most water per 1,000 people and what this reveals about how we live.</p>  <!-- Italic subtitle -->
+        
+        <!-- Wrapper for map and text box -->
+        <div class="map-wrapper">                  <!-- Relative positioned wrapper for absolute text boxes -->
+                <!-- Text box positioned on the left over the map -->
+                <div class="text-box">                 <!-- Left floating text box (absolute positioned) -->
+                    <p><strong>What the graph shows:</strong></p>  <!-- Paragraph with bold heading -->
+                    <p>This map compares how much water each Australian state sources per 1,000 people through its urban water utilities. Darker shades represent higher per-capita sourcing, highlighting where utilities need to supply more water for each resident.</p>  <!-- Explanation paragraph -->
+                    <p>States on the east coast New South Wales, Victoria and Queensland sit in a narrow band around 65–70 ML per 1,000 people, while others show stronger variations.</p>  <!-- Additional detail paragraph -->
+                </div>                                 <!-- End of left text box -->
+                
+                <!-- Text box positioned on the right over the map -->
+                <div class="text-box-right">           <!-- Right floating text box (absolute positioned) -->
+                    <p><strong>What The Pattern Means:</strong></p>  <!-- Bold heading paragraph -->
+                    <p>The elevated values in Northern Territory (≈149 ML per 1,000 people) and Western Australia (≈94 ML per 1,000 people) show how geography, climate and long-distance networks drive higher water sourcing per person.</p>  <!-- First explanation -->
+                    <p>Both states have smaller, more dispersed populations, meaning utilities must move water farther and compensate for greater losses. In contrast, densely populated states like Victoria (≈64 ML), New South Wales (≈69 ML) and Queensland (≈68 ML) operate compact, efficient systems where large urban communities share infrastructure, resulting in much lower per-capita demand.</p>  <!-- Detailed comparison -->
+                </div>                                 <!-- End of right text box -->
+                
+                <!-- Div where the Vega-Lite map will be embedded -->
+                <div id="vis"></div>                   <!-- Container for choropleth map visualization (vegaEmbed target) -->
+            </div>                                     <!-- End of map-wrapper -->
+            
+            <!-- ====================
+                 SECTION 2: HORIZONTAL BAR CHART
+                 Shows top water utilities by population served
+                 ==================== -->
+            <div class="chart">                        <!-- Second chart section -->
+                <!-- Chart title -->
+                <h2>Top Urban Water Utilities by Population Served</h2>  <!-- Bar chart title -->
+                <!-- Chart subtitle/description -->
+                <p class="subtitle">Largest water utilities in Australia ranked by the number of people they serve.</p>  <!-- Bar chart subtitle -->
+                
+                <!-- Wrapper for bar chart and text boxes -->
+                <div class="map-wrapper">              <!-- Wrapper with relative positioning for text boxes -->
+                    <!-- First text box positioned on the right (top) -->
+                    <div class="text-box-barchart-top">    <!-- Top text box (positioned above chart with negative top) -->
+                        <p><strong>What the graph shows:</strong></p>  <!-- Bold heading -->
+                        <p>This bar chart ranks Australia's largest urban water utilities by the number of people they supply. Each bar represents one utility, with the bar length showing the population receiving water services and the colour indicating the state or territory.</p>  <!-- Description -->
+                        <p>Utilities like Sydney Water, Yarra Valley Water and Urban Utilities sit at the top, while smaller regional or city systems appear lower on the chart.</p>  <!-- Examples -->
+                    </div>                                 <!-- End top text box -->
+                    
+                    <!-- Second text box positioned on the right (bottom) -->
+                    <div class="text-box-barchart-bottom"> <!-- Bottom text box (below chart area) -->
+                        <p><strong>What the pattern means:</strong></p>  <!-- Bold heading -->
+                        <p>These utility sizes help explain the choropleth map. Large, dense utilities in NSW, Victoria and Queensland supply millions of people efficiently, which is why these states show lower per-capita water sourcing.</p>  <!-- Interpretation -->
+                        <p>In contrast, WA and the NT rely on smaller, more dispersed utilities, so each resident requires more water to be sourced and moved, producing the higher per-capita values seen on the map.</p>  <!-- Comparison -->
+                    </div>                                 <!-- End bottom text box -->
+                    
+                    <!-- Div where the Vega-Lite bar chart will be embedded -->
+                    <div id="barchart"></div>              <!-- Bar chart container (vegaEmbed target) -->
+                </div>                                     <!-- End map-wrapper -->
+            </div>                                         <!-- End chart section -->
+            
+            <!-- ====================
+                 SECTION 3: GROUPED BAR CHART (COLUMN CHART)
+                 Shows water supply trends over time with year filter
+                 ==================== -->
+            <div class="chart">                        <!-- Third chart section -->
+                <!-- Chart title -->
+                <h2>Water Supply Trends by State Over Time</h2>  <!-- Column chart title -->
+                <!-- Chart subtitle/description -->
+                <p class="subtitle">Total urban water supplied (ML) across Australian states and territories over the years.</p>  <!-- Column chart subtitle -->
+                
+                <!-- Div where the Vega-Lite column chart will be embedded -->
+                <div id="columnchart"></div>           <!-- Column chart container (vegaEmbed target with year filter) -->
+            </div>                                     <!-- End chart section -->
+            
+            <!-- ====================
+                 SECTION 4: SCATTER PLOT
+                 Shows relationship between population and water received
+                 ==================== -->
+            <div class="chart">                        <!-- Fourth and final chart section -->
+                <!-- Chart title -->
+                <h2>Population vs Water Received by State</h2>  <!-- Scatter plot title -->
+                <!-- Chart subtitle/description -->
+                <p class="subtitle">Exploring the relationship between population size and total water received across Australian states.</p>  <!-- Scatter plot subtitle -->
+                
+                <!-- Wrapper for scatterplot and text boxes -->
+                <div class="map-wrapper">              <!-- Relative wrapper for text boxes -->
+                    <!-- First text box positioned on the left -->
+                    <div class="text-box-barchart-top">    <!-- Top text box (reuses bar chart class) -->
+                        <p><strong>What the plot shows:</strong></p>  <!-- Bold heading -->
+                        <p>The scatter plot compares how many people each state's urban water systems serve with how much water they receive overall. Each point is a state: moving right means serving more people, and moving up means receiving a larger total volume of water.</p>  <!-- Explanation -->
+                    </div>                                 <!-- End top text box -->
+                    
+                    <!-- Second text box positioned on the right -->
+                    <div class="text-box-barchart-bottom"> <!-- Bottom text box -->
+                        <p><strong>What the pattern means:</strong></p>  <!-- Bold heading -->
+                        <p>Most states sit on a rough upward trend, where more people generally means more water supplied. States that sit higher relative to their population are effectively supplying more water per person, matching the darker per-capita sourcing seen on the choropleth map, while states closer to the line align with more efficient, lower per-capita use.</p>  <!-- Interpretation -->
+                    </div>                                 <!-- End bottom text box -->
+                    
+                    <!-- Div where the Vega-Lite scatterplot will be embedded -->
+                    <div id="scatterplot"></div>           <!-- Scatter plot container (vegaEmbed target) -->
+                </div>                                     <!-- End map-wrapper -->
+            </div>                                         <!-- End chart section -->
+        </div>                                             <!-- End first chart wrapper -->
+    </div>                                                 <!-- End main container -->
+    
+    <!-- ====================
+         JAVASCRIPT CODE - VEGA-EMBED IMPLEMENTATIONS
+         Uses Vega-Embed library to load and render all visualizations from JSON files
+         ==================== -->
+    <script>                                       <!-- JavaScript code begins -->
+        /* ==========================================================================
+         * VISUALIZATION 1: CHOROPLETH MAP
+         * 
+         * Purpose: Display Australian states colored by water usage per 1,000 people
+         * Data Source: map.json (which references states.geojson and CSV files)
+         * Target Element: #vis
+         * 
+         * vegaEmbed() Process:
+         * 1. Fetches the Vega-Lite specification from 'map.json'
+         * 2. Parses the spec and loads all referenced data files
+         * 3. Compiles the spec into a Vega visualization
+         * 4. Renders the visualization inside the #vis div
+         * 5. Returns a Promise that resolves with the view instance
+         * ========================================================================== */
+        vegaEmbed('#vis', 'map.json', {
+            "actions": false,                      // Hide the Vega actions menu (export, view source, etc.)
+            "renderer": "svg"                      // Use SVG renderer (easier to make transparent than canvas)
+        })                                         // Call vegaEmbed with options
+            .then(function(result) {               // .then() handles successful loading (Promise resolved)
+                // SUCCESS: Map rendered successfully
+                // result.view contains the interactive Vega view instance
+                // result.spec contains the parsed Vega-Lite specification
+                console.log('Map loaded successfully:', result);  // Log success to browser console
+            })                                     // End of .then() success handler
+            .catch(function(error) {               // .catch() handles errors (Promise rejected)
+                // ERROR HANDLING: Display error if map fails to load
+                // Common causes: missing files, invalid JSON, CORS issues
+                console.error('Error loading map:', error);  // Log error to console
+                alert('Error loading map. Check console for details.');  // Show user-facing error alert
+            });                                    // End of .catch() error handler
+        
+        /* ==========================================================================
+         * VISUALIZATION 2: HORIZONTAL BAR CHART
+         * 
+         * Purpose: Show top water utilities ranked by population served
+         * Data Source: barchart.json (references top_utilities_population.csv)
+         * Target Element: #barchart
+         * ========================================================================== */
+        vegaEmbed('#barchart', 'barchart.json', {
+            "actions": false,                      // Hide the Vega actions menu
+            "renderer": "svg"                      // Use SVG renderer for transparency
+        })                                         // Embed bar chart with options
+            .then(function(result) {               // Success handler (Promise resolved)
+                // SUCCESS: Bar chart rendered successfully
+                console.log('Bar chart loaded successfully:', result);  // Log to console
+            })                                     // End success handler
+            .catch(function(error) {               // Error handler (Promise rejected)
+                // ERROR HANDLING: Display error if bar chart fails to load
+                console.error('Error loading bar chart:', error);  // Log error
+                alert('Error loading bar chart. Check console for details.');  // Alert user
+            });                                    // End error handler
+        
+        /* ==========================================================================
+         * VISUALIZATION 3: GROUPED BAR CHART WITH YEAR FILTER
+         * 
+         * Purpose: Show water supply trends over time with interactive year dropdown
+         * Data Source: column_chart.json (references state_supply_trends.csv)
+         * Target Element: #columnchart
+         * Interactive Features: Dropdown filter to select specific years or view all
+         * ========================================================================== */
+        vegaEmbed('#columnchart', 'column_chart.json', {
+            "actions": false,                      // Hide the Vega actions menu
+            "renderer": "svg"                      // Use SVG renderer for transparency
+        })                                         // Embed column chart with options
+            .then(function(result) {               // Success handler
+                // SUCCESS: Column chart rendered successfully
+                console.log('Column chart loaded successfully:', result);  // Log success
+            })                                     // End success handler
+            .catch(function(error) {               // Error handler
+                // ERROR HANDLING: Display error if column chart fails to load
+                console.error('Error loading column chart:', error);  // Log error
+                alert('Error loading column chart. Check console for details.');  // Alert user
+            });                                    // End error handler
+        
+        /* ==========================================================================
+         * VISUALIZATION 4: SCATTER PLOT
+         * 
+         * Purpose: Show relationship between population and water received by state
+         * Data Source: scatterplot.json (references state_scatter.csv)
+         * Target Element: #scatterplot
+         * Features: Color-coded by state with sorted legend (highest water first)
+         * ========================================================================== */
+        vegaEmbed('#scatterplot', 'scatterplot.json', {
+            "actions": false,                      // Hide the Vega actions menu
+            "renderer": "svg"                      // Use SVG renderer for transparency
+        })                                         // Embed scatter plot with options
+            .then(function(result) {               // Success handler
+                // SUCCESS: Scatterplot rendered successfully
+                console.log('Scatterplot loaded successfully:', result);  // Log success
+            })                                     // End success handler
+            .catch(function(error) {               // Error handler
+                // ERROR HANDLING: Display error if scatterplot fails to load
+                console.error('Error loading scatterplot:', error);  // Log error to console
+                alert('Error loading scatterplot. Check console for details.');  // Alert user of error
+            });                                    // End error handler
+    </script>                                      <!-- End JavaScript code -->
+</body>                                            <!-- End body section -->
+</html>                                            <!-- End HTML document -->

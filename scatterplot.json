@@ -1,0 +1,62 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Scatter plot showing relationship between population and water received across states. Upward trend shows larger populations receive more water. States positioned higher have higher per-capita usage.",
+  
+  "width": 500,
+  "height": 350,
+  
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "black",
+      "gridColor": "black",
+      "tickColor": "black",
+      "labelColor": "black",
+      "titleColor": "black"
+    }
+  },
+  
+  "data": {
+    "url": "data/state_scatter.csv"
+  },
+  
+  "mark": {
+    "type": "point",
+    "filled": true,
+    "size": 140
+  },
+  
+  "encoding": {
+    "x": {
+      "field": "AveragePopulationReceivingWater",
+      "type": "quantitative",
+      "title": "Average population receiving water"
+    },
+    "y": {
+      "field": "WaterReceivedML",
+      "type": "quantitative",
+      "title": "Total water received (ML)"
+    },
+    "color": {
+      "field": "State",
+      "type": "nominal",
+      "title": "State / Territory",
+      "scale": {
+        "scheme": "tableau10"
+      },
+      "sort": {
+        "field": "WaterReceivedML",
+        "op": "max",
+        "order": "descending"
+      }
+    },
+    "tooltip": [
+      { "field": "State", "type": "nominal", "title": "State" },
+      { "field": "AveragePopulationReceivingWater", "type": "quantitative", "title": "Avg population receiving water" },
+      { "field": "WaterReceivedML", "type": "quantitative", "title": "Water received (ML)" }
+    ]
+  }
+}

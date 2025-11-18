@@ -1,0 +1,82 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Grouped bar chart showing water supply trends across states from 2018-2022. Interactive dropdown filter allows comparison of specific years or all years together.",
+  
+  "data": {
+    "url": "data/state_supply_trends.csv"
+  },
+  
+  "width": 600,
+  "height": 400,
+  
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "black",
+      "gridColor": "black",
+      "tickColor": "black",
+      "labelColor": "black",
+      "titleColor": "black"
+    }
+  },
+  
+  "params": [
+    {
+      "name": "yearSelect",
+      "value": null,
+      "bind": {
+        "input": "select",
+        "options": [null, "2018", "2019", "2020", "2021", "2022"],
+        "labels": ["All Years", "2018", "2019", "2020", "2021", "2022"],
+        "name": "Select Year: "
+      }
+    }
+  ],
+  
+  "transform": [
+    {
+      "filter": "yearSelect == null || datum.Year == yearSelect"
+    }
+  ],
+  
+  "mark": {
+    "type": "bar",
+    "tooltip": true
+  },
+  
+  "encoding": {
+    "x": {
+      "field": "State",
+      "type": "nominal",
+      "title": "State / Territory",
+      "axis": {
+        "labelAngle": -45
+      }
+    },
+    "y": {
+      "field": "TotalUrbanSuppliedML",
+      "type": "quantitative",
+      "title": "Total urban water supplied (ML)"
+    },
+    "color": {
+      "field": "State",
+      "type": "nominal",
+      "scale": {
+        "scheme": "tableau10"
+      },
+      "legend": null
+    },
+    "xOffset": {
+      "field": "Year",
+      "type": "ordinal"
+    },
+    "tooltip": [
+      { "field": "State", "type": "nominal", "title": "State" },
+      { "field": "Year", "type": "ordinal", "title": "Year" },
+      { "field": "TotalUrbanSuppliedML", "type": "quantitative", "title": "Total supplied (ML)" }
+    ]
+  }
+}

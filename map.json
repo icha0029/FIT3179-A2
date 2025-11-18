@@ -1,0 +1,444 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",  
+  "description": "Multi-layer choropleth map of Australian states showing water sourced per 1,000 people. Uses square root color scale to highlight differences. Includes 5 layer groups: (1) colored state shapes, (2) numeric labels on states, (3-5) three annotation groups with pointer lines explaining NT, WA, and East Coast states.",
+  
+  "width": 1340,
+  "height": 550,
+  
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "black",
+      "gridColor": "black",
+      "tickColor": "black",
+      "labelColor": "black",
+      "titleColor": "black"
+    }
+  },
+  
+  "projection": {
+    "type": "mercator",
+    "center": [135, -28],
+    "scale": 700
+  },
+  "layer": [
+    {
+      "description": "LAYER 1: Base choropleth map - Colors each state by water usage per capita. Uses square root color scale with blues scheme. Joins GeoJSON boundaries with CSV data by state name.",
+      "data": {
+        "url": "data/states.geojson",
+        "format": {"type": "json", "property": "features"}
+      },
+      "transform": [
+        {
+          "lookup": "properties.STATE_NAME",
+          "from": {
+            "data": {
+              "url": "data/FIT3179_Using_Map_Data.csv",
+              "format": {"type": "csv"}
+            },
+            "key": "State",
+            "fields": ["Water Used in ML per 1000 people"]
+          }
+        },
+        {
+          "calculate": "datum.properties.STATE_NAME + ': ' + format(datum['Water Used in ML per 1000 people'], '.1f') + ' ML per 1,000 people'",
+          "as": "tooltip_text"
+        }
+      ],
+      "mark": {
+        "type": "geoshape",
+        "stroke": "white",
+        "strokeWidth": 0.5
+      },
+      "encoding": {
+        "color": {
+          "field": "Water Used in ML per 1000 people",
+          "type": "quantitative",
+          "title": "Water sourced (ML) per 1,000 people",
+          "scale": {
+            "type": "sqrt",
+            "scheme": "blues",
+            "domain": [60, 150]
+          },
+          "legend": {
+            "orient": "top-right",
+            "offset": -20,
+            "padding": 10,
+            "titleLimit": 300,
+            "titlePadding": 10
+          }
+        },
+        "tooltip": {
+          "field": "tooltip_text",
+          "type": "nominal"
+        }
+      }
+    },
+    {
+      "description": "LAYER 2: Numeric labels - Shows water usage values as text on each state's center. Reads centroids from CSV and joins with usage data. Values formatted to 1 decimal place.",
+      "data": {
+        "url": "data/state_centroids.csv",
+        "format": {"type": "csv"}
+      },
+      "transform": [
+        {
+          "lookup": "State",
+          "from": {
+            "data": {
+              "url": "data/FIT3179_Using_Map_Data.csv",
+              "format": {"type": "csv"}
+            },
+            "key": "State",
+            "fields": ["Water Used in ML per 1000 people"]
+          }
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "fontSize": 15,
+        "fontWeight": "normal",
+        "color": "black",
+        "align": "center",
+        "baseline": "middle",
+        "dx": 0,
+        "dy": 0
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "Water Used in ML per 1000 people",
+          "type": "quantitative",
+          "format": ".1f"
+        }
+      }
+    },
+    {
+      "description": "LAYER 3a: Transparent background rectangle for NT annotation - Creates invisible bounding box to reserve space for text (fill and stroke are transparent).",
+      "data": {
+        "values": [
+          {"longitude": 122, "latitude": -5, "longitude2": 138, "latitude2": -9.5}
+        ]
+      },
+      "mark": {
+        "type": "rect",
+        "fill": "transparent",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "cornerRadius": 5
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "longitude2": {
+          "field": "longitude2"
+        },
+        "latitude2": {
+          "field": "latitude2"
+        }
+      }
+    },
+    {
+      "description": "LAYER 3b: Pointer line for NT - Blue line connecting NT's center to annotation text box above.",
+      "data": {
+        "values": [
+          {"longitude": 133, "latitude": -17, "order": 1},
+          {"longitude": 130, "latitude": -9.5, "order": 2}
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2,
+        "color": "#4682b4"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "order": {
+          "field": "order"
+        }
+      }
+    },
+    {
+      "description": "LAYER 3c: Multi-line text for NT - Explains why NT has highest per-capita usage (149 ML per 1,000 people). Each element is a text line at different latitudes for vertical spacing.",
+      "data": {
+        "values": [
+          {
+            "longitude": 122.5,
+            "latitude": -5.5,
+            "text": "Northern Territory: 149 ML per 1,000 people"
+          },
+          {
+            "longitude": 122.5,
+            "latitude": -6.7,
+            "text": "Highest in Australia more than double VIC and NSW."
+          },
+          {
+            "longitude": 122.5,
+            "latitude": -7.9,
+            "text": "Low population density + long supply networks"
+          },
+          {
+            "longitude": 122.5,
+            "latitude": -8.8,
+            "text": "push per-person sourcing way up."
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 10,
+        "fontWeight": "normal",
+        "color": "#333",
+        "align": "center",
+        "baseline": "top",
+        "dx": 0
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "text",
+          "type": "nominal"
+        }
+      }
+    },
+    {
+      "description": "LAYER 4a: Transparent background for WA annotation - Invisible box in southwest corner to reserve space for text.",
+      "data": {
+        "values": [
+          {"longitude": 110, "latitude": -37, "longitude2": 126, "latitude2": -41}
+        ]
+      },
+      "mark": {
+        "type": "rect",
+        "fill": "transparent",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "cornerRadius": 5
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "longitude2": {
+          "field": "longitude2"
+        },
+        "latitude2": {
+          "field": "latitude2"
+        }
+      }
+    },
+    {
+      "description": "LAYER 4b: Pointer line for WA - Blue line from WA's center to annotation box in southwest corner.",
+      "data": {
+        "values": [
+          {"longitude": 122, "latitude": -30, "order": 1},
+          {"longitude": 118, "latitude": -37, "order": 2}
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2,
+        "color": "#4682b4"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "order": {
+          "field": "order"
+        }
+      }
+    },
+    {
+      "description": "LAYER 4c: Multi-line text for WA - Explains second-highest usage driven by dry climate and long pipelines. Each line at different latitude.",
+      "data": {
+        "values": [
+          {
+            "longitude": 110.5,
+            "latitude": -37.5,
+            "text": "Second highest driven by dry climate and"
+          },
+          {
+            "longitude": 110.5,
+            "latitude": -38.7,
+            "text": "long-distance pipelines. WA sits far above"
+          },
+          {
+            "longitude": 110.5,
+            "latitude": -39.6,
+            "text": "the east-coast states."
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 10,
+        "fontWeight": "normal",
+        "color": "#333",
+        "align": "center",
+        "baseline": "top",
+        "dx": 0
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "text",
+          "type": "nominal"
+        }
+      }
+    },
+    {
+      "description": "LAYER 5a: Transparent background for East Coast annotation - Invisible box in southeast ocean area for NSW/VIC/QLD text.",
+      "data": {
+        "values": [
+          {"longitude": 150, "latitude": -41, "longitude2": 166, "latitude2": -44.5}
+        ]
+      },
+      "mark": {
+        "type": "rect",
+        "fill": "transparent",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "cornerRadius": 5
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "longitude2": {
+          "field": "longitude2"
+        },
+        "latitude2": {
+          "field": "latitude2"
+        }
+      }
+    },
+    {
+      "description": "LAYER 5b: Three pointer lines for NSW/VIC/QLD - Blue rules from each eastern state to shared text box. Uses rule mark for straight lines with start/end coords.",
+      "data": {
+        "values": [
+          {"longitude": 151, "latitude": -33.5, "longitude2": 158, "latitude2": -41},
+          {"longitude": 145, "latitude": -37, "longitude2": 150, "latitude2": -41},
+          {"longitude": 153, "latitude": -27.5, "longitude2": 158, "latitude2": -41}
+        ]
+      },
+      "mark": {
+        "type": "rule",
+        "strokeWidth": 2,
+        "color": "#4682b4"
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "longitude2": {
+          "field": "longitude2"
+        },
+        "latitude2": {
+          "field": "latitude2"
+        }
+      }
+    },
+    {
+      "description": "LAYER 5c: Multi-line text for NSW/VIC/QLD - Explains clustering at 65-70 ML per 1,000 people due to dense urban populations enabling efficient infrastructure. Each line at different latitude.",
+      "data": {
+        "values": [
+          {
+            "longitude": 158,
+            "latitude": -41.5,
+            "text": "NSW, VIC & QLD cluster tightly around 65–70 ML."
+          },
+          {
+            "longitude": 158,
+            "latitude": -43,
+            "text": "Large, dense urban areas make water systems"
+          },
+          {
+            "longitude": 158,
+            "latitude": -44,
+            "text": "more efficient per person."
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "fontSize": 10,
+        "fontWeight": "normal",
+        "color": "#333",
+        "align": "center",
+        "baseline": "top",
+        "dx": 0
+      },
+      "encoding": {
+        "longitude": {
+          "field": "longitude",
+          "type": "quantitative"
+        },
+        "latitude": {
+          "field": "latitude",
+          "type": "quantitative"
+        },
+        "text": {
+          "field": "text",
+          "type": "nominal"
+        }
+      }
+    }
+  ]
+}
