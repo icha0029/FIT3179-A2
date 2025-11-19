@@ -132,6 +132,7 @@
         }
         
         /* Bottom text box for bar chart and scatter plot */
+        /* Default: scatterplot and others remain closer */
         .text-box-barchart-bottom {
             position: absolute;
             right: 40px;
@@ -146,6 +147,16 @@
             box-shadow: none;
             z-index: 10;
             text-align: center;
+        }
+
+        /* For bar chart only, move bottom text box further down */
+        .chart .map-wrapper:nth-of-type(1) .text-box-barchart-bottom {
+            top: 200px; /* Minor spread for bar chart */
+        }
+
+        /* For scatterplot only, move bottom text box closer */
+        .chart:last-of-type .map-wrapper .text-box-barchart-bottom {
+            top: 160px; /* Further apart for scatterplot */
         }
         
         /* Paragraph spacing in text boxes */
