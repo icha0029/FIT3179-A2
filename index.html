@@ -268,7 +268,19 @@
                 <h2>Water Supply Trends by State Over Time</h2>
                 <p class="subtitle">Total urban water supplied (ML) across Australian states and territories over the years.</p>
                 
-                <div id="columnchart"></div>
+                <div class="map-wrapper">
+                    <div class="text-box-barchart-top">
+                        <p><strong>What the graph shows:</strong></p>
+                        <p>This graph displays how much urban water each Australian state and territory supplies in total each year. The bars show total water supplied in megalitres (ML), and the dropdown lets you switch between years so you can directly compare the state-by-state pattern for any selected year.</p>
+                    </div>
+                    
+                    <div class="text-box-barchart-bottom">
+                        <p><strong>What the pattern means:</strong></p>
+                        <p>For every year you choose in the dropdown, states with larger populations like New South Wales, Victoria and Queensland consistently supply the highest total volumes, while Tasmania, the ACT and the Northern Territory supply much less. This confirms that overall water supply closely tracks population size, which helps explain the per-capita patterns seen in the choropleth map and the relationships shown in the scatter plot.</p>
+                    </div>
+                    
+                    <div id="columnchart"></div>
+                </div>
             </div>
             
             <!-- Scatter Plot -->
@@ -288,6 +300,46 @@
                     </div>
                     
                     <div id="scatterplot"></div>
+                </div>
+            </div>
+            
+            <!-- Residential Split Chart -->
+            <div class="chart">
+                <h2>Residential vs Non-Residential Water Supply by State</h2>
+                <p class="subtitle">Comparing the proportion of water supplied to residential and non-residential customers across states.</p>
+                
+                <div class="map-wrapper">
+                    <div class="text-box-barchart-top">
+                        <p><strong>What the graph shows:</strong></p>
+                        <p>This graph shows how each state's urban water supply is divided between residential and non-residential users. Each bar represents a state, split into household use and commercial/industrial use, allowing easy comparison of usage shares across regions.</p>
+                    </div>
+                    
+                    <div class="text-box-barchart-bottom">
+                        <p><strong>What the pattern means:</strong></p>
+                        <p>Residential use dominates nationwide, making up roughly 60–70% of total demand in every state. Queensland has the highest residential share, while NSW has the largest non-residential component due to its strong commercial sector. The consistent split across states shows that differences in total water demand are driven more by population, climate and infrastructure than by how water is allocated between households and businesses.</p>
+                    </div>
+                    
+                    <div id="residentialsplit"></div>
+                </div>
+            </div>
+            
+            <!-- Recycled Water Chart -->
+            <div class="chart">
+                <h2>Recycled Water as Share of Total Supply by State</h2>
+                <p class="subtitle">Percentage of total urban water supplied that comes from recycled sources.</p>
+                
+                <div class="map-wrapper">
+                    <div class="text-box-barchart-top">
+                        <p><strong>What the graph shows:</strong></p>
+                        <p>This graph shows the percentage of each state's total urban water supply that comes from recycled water. Each bar represents how much of the water used by that state is sourced from recycling rather than traditional supplies such as dams or groundwater.</p>
+                    </div>
+                    
+                    <div class="text-box-barchart-bottom">
+                        <p><strong>What the pattern means:</strong></p>
+                        <p>South Australia stands out with a very high recycling rate, reflecting long-term investment in reuse technologies. Western Australia and Victoria also show significant recycling, while states like Tasmania and the Northern Territory rely very little on recycled water. These differences highlight how states facing drier climates or supply pressure make greater use of recycled water, adding a sustainability dimension that complements the earlier per-capita and total supply findings.</p>
+                    </div>
+                    
+                    <div id="recycledwater"></div>
                 </div>
             </div>
         </div>
@@ -336,6 +388,28 @@
         }).catch(function(error) {
             console.error('Error loading scatterplot:', error);
             alert('Error loading scatterplot. Check console for details.');
+        });
+        
+        // Load residential split chart
+        vegaEmbed('#residentialsplit', 'residential_split.json', {
+            "actions": false,
+            "renderer": "svg"
+        }).then(function(result) {
+            console.log('Residential split chart loaded successfully:', result);
+        }).catch(function(error) {
+            console.error('Error loading residential split chart:', error);
+            alert('Error loading residential split chart. Check console for details.');
+        });
+        
+        // Load recycled water chart
+        vegaEmbed('#recycledwater', 'recycled_water.json', {
+            "actions": false,
+            "renderer": "svg"
+        }).then(function(result) {
+            console.log('Recycled water chart loaded successfully:', result);
+        }).catch(function(error) {
+            console.error('Error loading recycled water chart:', error);
+            alert('Error loading recycled water chart. Check console for details.');
         });
     </script>
 </body>

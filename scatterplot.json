@@ -12,7 +12,9 @@
     },
     "axis": {
       "domainColor": "black",
-      "gridColor": "black",
+      "gridColor": "#d3d3d3",
+      "gridOpacity": 1,
+      "gridWidth": 1,
       "tickColor": "black",
       "labelColor": "black",
       "titleColor": "black"
@@ -26,7 +28,8 @@
   "mark": {
     "type": "point",
     "filled": true,
-    "size": 140
+    "size": 300,
+    "opacity": 1
   },
   
   "encoding": {
@@ -45,7 +48,26 @@
       "type": "nominal",
       "title": "State / Territory",
       "scale": {
-        "scheme": "tableau10"
+        "domain": [
+          "Australian Capital Territory",
+          "New South Wales",
+          "Northern Territory",
+          "Queensland",
+          "South Australia",
+          "Tasmania",
+          "Victoria",
+          "Western Australia"
+        ],
+        "range": [
+          "#4c78a8",
+          "#f58518",
+          "#e45756",
+          "#72b7b2",
+          "#54a24b",
+          "#eeca3b",
+          "#b279a2",
+          "#ff9da6"
+        ]
       },
       "sort": {
         "field": "WaterReceivedML",
@@ -55,8 +77,8 @@
     },
     "tooltip": [
       { "field": "State", "type": "nominal", "title": "State" },
-      { "field": "AveragePopulationReceivingWater", "type": "quantitative", "title": "Avg population receiving water" },
-      { "field": "WaterReceivedML", "type": "quantitative", "title": "Water received (ML)" }
+      { "field": "AveragePopulationReceivingWater", "type": "quantitative", "title": "Avg population receiving water", "format": "," },
+      { "field": "WaterReceivedML", "type": "quantitative", "title": "Water received", "format": "," }
     ]
   }
 }

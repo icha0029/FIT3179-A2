@@ -45,7 +45,20 @@
       "type": "nominal",
       "title": "State / Territory",
       "scale": {
-        "scheme": "tableau10"
+        "domain": [
+          "New South Wales",
+          "Queensland",
+          "South Australia",
+          "Victoria",
+          "Western Australia"
+        ],
+        "range": [
+          "#f58518",
+          "#72b7b2",
+          "#54a24b",
+          "#b279a2",
+          "#ff9da6"
+        ]
       }
     },
     "tooltip": [

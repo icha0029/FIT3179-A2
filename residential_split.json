@@ -1,0 +1,76 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Residential vs non-residential urban water supplied by state.",
+  
+  "width": 500,
+  "height": 300,
+  
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "black",
+      "gridColor": "#d3d3d3",
+      "gridOpacity": 1,
+      "gridWidth": 1,
+      "tickColor": "black",
+      "labelColor": "black",
+      "titleColor": "black"
+    }
+  },
+  
+  "data": {
+    "url": "data/state_residential_split.csv"
+  },
+  
+  "transform": [
+    {
+      "fold": ["ResidentialML", "NonResidentialML"],
+      "as": ["Category", "VolumeML"]
+    }
+  ],
+  
+  "mark": "bar",
+  
+  "encoding": {
+    "x": {
+      "field": "State",
+      "type": "nominal",
+      "title": "State / Territory"
+    },
+    "y": {
+      "field": "VolumeML",
+      "type": "quantitative",
+      "stack": "normalize",
+      "title": "Share of urban water supplied"
+    },
+    "color": {
+      "field": "Category",
+      "type": "nominal",
+      "title": "Customer type",
+      "scale": {
+        "domain": ["ResidentialML", "NonResidentialML"],
+        "range": ["#4c78a8", "#f58518"]
+      },
+      "legend": {
+        "labelExpr": "datum.label == 'ResidentialML' ? 'Residential' : 'Non-residential'"
+      }
+    },
+    "tooltip": [
+      { "field": "State", "type": "nominal", "title": "State" },
+      {
+        "field": "Category",
+        "type": "nominal",
+        "title": "Customer type"
+      },
+      {
+        "field": "VolumeML",
+        "type": "quantitative",
+        "title": "Volume (ML)",
+        "format": ","
+      }
+    ]
+  }
+}

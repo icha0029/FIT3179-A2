@@ -1,13 +1,9 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Grouped bar chart showing water supply trends across states from 2018-2022. Interactive dropdown filter allows comparison of specific years or all years together.",
+  "description": "Percentage of total urban water supplied that is recycled, by state.",
   
-  "data": {
-    "url": "data/state_supply_trends.csv"
-  },
-  
-  "width": 600,
-  "height": 400,
+  "width": 500,
+  "height": 300,
   
   "config": {
     "background": "transparent",
@@ -16,31 +12,18 @@
     },
     "axis": {
       "domainColor": "black",
-      "gridColor": "black",
+      "gridColor": "#d3d3d3",
+      "gridOpacity": 1,
+      "gridWidth": 1,
       "tickColor": "black",
       "labelColor": "black",
       "titleColor": "black"
     }
   },
   
-  "params": [
-    {
-      "name": "yearSelect",
-      "value": null,
-      "bind": {
-        "input": "select",
-        "options": [null, "2018", "2019", "2020", "2021", "2022"],
-        "labels": ["All Years", "2018", "2019", "2020", "2021", "2022"],
-        "name": "Select Year: "
-      }
-    }
-  ],
-  
-  "transform": [
-    {
-      "filter": "yearSelect == null || datum.Year == yearSelect"
-    }
-  ],
+  "data": {
+    "url": "data/state_recycled_share.csv"
+  },
   
   "mark": {
     "type": "bar",
@@ -52,14 +35,16 @@
       "field": "State",
       "type": "nominal",
       "title": "State / Territory",
+      "sort": "-y",
       "axis": {
-        "labelAngle": -45
+        "labelAngle": -45,
+        "labelAlign": "right"
       }
     },
     "y": {
-      "field": "TotalUrbanSuppliedML",
+      "field": "RecycledPercent",
       "type": "quantitative",
-      "title": "Total urban water supplied (ML)"
+      "title": "Recycled water (%)"
     },
     "color": {
       "field": "State",
@@ -88,14 +73,14 @@
         ]
       }
     },
-    "xOffset": {
-      "field": "Year",
-      "type": "ordinal"
-    },  
     "tooltip": [
-      { "field": "State", "type": "nominal", "title": "State" },
-      { "field": "Year", "type": "ordinal", "title": "Year" },
-      { "field": "TotalUrbanSuppliedML", "type": "quantitative", "title": "Total supplied", "format": "," }
+      {"field": "State", "type": "nominal"},
+      {
+        "field": "RecycledPercent",
+        "type": "quantitative",
+        "format": ".1f",
+        "title": "Recycled (%)"
+      }
     ]
   }
 }
