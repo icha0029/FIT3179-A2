@@ -25,14 +25,15 @@
     "url": "data/state_scatter.csv"
   },
   
-  "mark": {
-    "type": "point",
-    "filled": true,
-    "size": 300,
-    "opacity": 1
-  },
-  
-  "encoding": {
+  "layer": [
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 300,
+        "opacity": 1
+      },
+      "encoding": {
     "x": {
       "field": "AveragePopulationReceivingWater",
       "type": "quantitative",
@@ -80,5 +81,7 @@
       { "field": "AveragePopulationReceivingWater", "type": "quantitative", "title": "Avg population receiving water", "format": "," },
       { "field": "WaterReceivedML", "type": "quantitative", "title": "Water received", "format": "," }
     ]
-  }
+      }
+    }
+  ]
 }

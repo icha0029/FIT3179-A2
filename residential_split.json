@@ -38,7 +38,11 @@
     "x": {
       "field": "State",
       "type": "nominal",
-      "title": "State / Territory"
+      "title": "State / Territory",
+      "axis": {
+        "labelAngle": -45,
+        "labelAlign": "right"
+      }
     },
     "y": {
       "field": "VolumeML",
